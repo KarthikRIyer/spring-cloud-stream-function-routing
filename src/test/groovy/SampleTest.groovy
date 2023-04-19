@@ -13,6 +13,8 @@ import spock.lang.Specification
 import spock.lang.Stepwise
 import spock.lang.Title
 
+import java.util.concurrent.ConcurrentLinkedQueue
+
 @SpringBootTest(classes = [AirplaneApplication.class])
 @ActiveProfiles("test")
 @Stepwise
@@ -39,7 +41,34 @@ class SampleTest extends Specification {
     TestState testState = new TestState()
 
     def initTestState(InputDestination inDest, OutputDestination outDest) {
-//        def inputChannels = TestUtil.getInp
+        def inputChannels = TestUtil.getInputChannels(inDest)
+        def outputChannels = TestUtil.getOutputChannels(outDest)
+        getTestState().setInputChannels(inputChannels)
+        getTestState().setOutputChannels(outputChannels)
+        getTestState().setInputMessages(new HashMap<String, Queue<Object>>())
+        getTestState().setOutputMessages(new HashMap<String, Queue<Object>>())
+
+        getTestState().getInputChannels().keySet()
+                .forEach(channelName -> getTestState().getInputMessages().put(channelName, new ConcurrentLinkedQueue<String>()))
+        getTestState().getInputChannels().entrySet().stream()
+                .forEach(inputChannelEntry -> {
+                    def subscribableChannel = inputChannelEntry.getValue()
+                    def channelName = inputChannelEntry.getKey()
+                    subscribableChannel.subscribe(m -> {
+                        getTestState().getInputMessages().get(channelName).add(m)
+                    })
+                })
+
+        getTestState().getOutputChannels().keySet()
+                .forEach(channelName -> getTestState().getInputMessages().put(channelName, new ConcurrentLinkedQueue<String>()))
+        getTestState().getInputChannels().entrySet().stream()
+                .forEach(inputChannelEntry -> {
+                    def subscribableChannel = inputChannelEntry.getValue()
+                    def channelName = inputChannelEntry.getKey()
+                    subscribableChannel.subscribe(m -> {
+                        getTestState().getInputMessages().get(channelName).add(m)
+                    })
+                })
     }
 
     def "Sample Test"() {
