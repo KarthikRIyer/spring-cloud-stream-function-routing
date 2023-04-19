@@ -60,13 +60,13 @@ class SampleTest extends Specification {
                 })
 
         getTestState().getOutputChannels().keySet()
-                .forEach(channelName -> getTestState().getInputMessages().put(channelName, new ConcurrentLinkedQueue<String>()))
-        getTestState().getInputChannels().entrySet().stream()
-                .forEach(inputChannelEntry -> {
-                    def subscribableChannel = inputChannelEntry.getValue()
-                    def channelName = inputChannelEntry.getKey()
+                .forEach(channelName -> getTestState().getOutputMessages().put(channelName, new ConcurrentLinkedQueue<String>()))
+        getTestState().getOutputChannels().entrySet().stream()
+                .forEach(outputChannelEntry -> {
+                    def subscribableChannel = outputChannelEntry.getValue()
+                    def channelName = outputChannelEntry.getKey()
                     subscribableChannel.subscribe(m -> {
-                        getTestState().getInputMessages().get(channelName).add(m)
+                        getTestState().getOutputMessages().get(channelName).add(m)
                     })
                 })
     }
@@ -83,5 +83,6 @@ class SampleTest extends Specification {
 
         then: "Flight event is raised"
 //        def flightEventPayload = getTestState().getOutputMessages().get("flightEventProcessor")
+        System.out.println()
     }
 }
