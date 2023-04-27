@@ -79,7 +79,8 @@ class SampleTest extends Specification {
         Message<PlaneEvent> message = MessageBuilder.withPayload(new PlaneEvent(UUID.randomUUID().toString(), "CITY"))
                 .setHeader("Type", PlaneEvent.class.getSimpleName())
         .build()
-        streamBridge.send("functionRouter-in-0", message)
+//        streamBridge.send("functionRouter-in-0", message)
+        streamBridge.send("planeEventProducer", message)
 
         then: "Flight event is raised"
 //        def flightEventPayload = getTestState().getOutputMessages().get("flightEventProcessor")
